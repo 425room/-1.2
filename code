@@ -1,0 +1,159 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace CS5
+{
+
+    class Point
+    {
+        public double x, y;
+    }
+
+    class Program
+    {
+
+        static bool checkIntersectionOfTwoLineSegments(Point p1, Point p2,
+        Point p3, Point p4)
+        {
+
+            //сначала расставим точки по порядку, т.е. чтобы было p1.x <= p2.x
+            if (p2.x < p1.x)
+            {
+
+                Point tmp = p1;
+                p1 = p2;
+                p2 = tmp;
+            }
+            //и p3.x <= p4.x
+            if (p4.x < p3.x)
+            {
+
+                Point tmp = p3;
+                p3 = p4;
+                p4 = tmp;
+            }
+
+            //проверим существование потенциального интервала для точки пересечения отрезков
+            if (p2.x < p3.x)
+            {
+                return false; //ибо у отрезков нету взаимной абсциссы
+            }
+
+            //если оба отрезка вертикальные
+            if ((p1.x - p2.x == 0) && (p3.x - p4.x == 0))
+            {
+
+                //если они лежат на одном X
+                if (p1.x == p3.x)
+                {
+
+                    //проверим пересекаются ли они, т.е. есть ли у них общий Y
+                    //для этого возьмём отрицание от случая, когда они НЕ пересекаются
+                    if (!((Math.Max(p1.y, p2.y) < Math.Min(p3.y, p4.y)) ||
+                            (Math.Min(p1.y, p2.y) > Math.Max(p3.y, p4.y))))
+                    {
+
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            //найдём коэффициенты уравнений, содержащих отрезки
+            //f1(x) = A1*x + b1 = y
+            //f2(x) = A2*x + b2 = y
+
+            double Xa, A2, b2, Ya, A1, b1;
+
+            //если первый отрезок вертикальный
+            if (p1.x - p2.x == 0)
+            {
+
+                //найдём Xa, Ya - точки пересечения двух прямых
+                Xa = p1.x;
+                A2 = (p3.y - p4.y) / (p3.x - p4.x);
+                b2 = p3.y - A2 * p3.x;
+                Ya = A2 * Xa + b2;
+
+                if (p3.x <= Xa && p4.x >= Xa && Math.Min(p1.y, p2.y) <= Ya &&
+                        Math.Max(p1.y, p2.y) >= Ya)
+                {
+
+                    return true;
+                }
+
+                return false;
+            }
+
+            //если второй отрезок вертикальный
+            if (p3.x - p4.x == 0)
+            {
+
+                //найдём Xa, Ya - точки пересечения двух прямых
+                Xa = p3.x;
+                A1 = (p1.y - p2.y) / (p1.x - p2.x);
+                b1 = p1.y - A1 * p1.x;
+                Ya = A1 * Xa + b1;
+
+                if (p1.x <= Xa && p2.x >= Xa && Math.Min(p3.y, p4.y) <= Ya &&
+                        Math.Max(p3.y, p4.y) >= Ya)
+                {
+
+                    return true;
+                }
+
+                return false;
+            }
+            //оба отрезка невертикальные
+            A1 = (p1.y - p2.y) / (p1.x - p2.x);
+            A2 = (p3.y - p4.y) / (p3.x - p4.x);
+            b1 = p1.y - A1 * p1.x;
+            b2 = p3.y - A2 * p3.x;
+
+            if (A1 == A2)
+            {
+                return false; //отрезки параллельны
+            }
+
+            //Xa - абсцисса точки пересечения двух прямых
+            Xa = (b2 - b1) / (A1 - A2);
+
+            if ((Xa < Math.Max(p1.x, p3.x)) || (Xa > Math.Min(p2.x, p4.x)))
+            {
+                return false; //точка Xa находится вне пересечения проекций отрезков на ось X 
+            }
+            else
+            {
+                return true;
+            }
+        }
+        static void Main(string[] args)
+        {
+            Point p1, p2, p3, p4;
+
+            Console.Write("Введите координаты точек первого отрезка (x1 y1 x2 y2): ");
+            string tmp = Console.ReadLine();
+            string[] tmp2 = tmp.Split(' ');
+            p1 = new Point { x = Convert.ToDouble(tmp2[0]), y = Convert.ToDouble(tmp2[1]) };
+            p2 = new Point { x = Convert.ToDouble(tmp2[2]), y = Convert.ToDouble(tmp2[3]) };
+            Console.Write("Введите координаты точек второго отрезка (x1 y1 x2 y2): ");
+            tmp = Console.ReadLine();
+            tmp2 = tmp.Split(' ');
+            p3 = new Point { x = Convert.ToDouble(tmp2[0]), y = Convert.ToDouble(tmp2[1]) };
+            p4 = new Point { x = Convert.ToDouble(tmp2[2]), y = Convert.ToDouble(tmp2[3]) };
+
+            if (checkIntersectionOfTwoLineSegments(p1, p2, p3, p4))
+            {
+                Console.Write("Пересекаются!\n");
+            }
+            else
+                Console.Write("Не пересекаются!\n");
+
+            Console.ReadKey();
+        }
+    }
+}
